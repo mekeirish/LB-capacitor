@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚡ PWA → APK Protocol · Brahim's Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background: #f1f5f9;
+            color: #0b1120;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 40px 45px;
+        }
+        @media (max-width: 640px) {
+            .container { padding: 20px; }
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #e9edf4;
+            padding-bottom: 20px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo { font-size: 32px; line-height: 1; }
+        .title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .title .sub {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5a72;
+            margin-top: 2px;
+        }
+        .badge {
+            background: #0b1120;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .progress-wrap {
+            background: #eef2f7;
+            border-radius: 100px;
+            height: 8px;
+            margin: 0 0 28px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #2563eb;
+            border-radius: 100px;
+            transition: width 0.5s ease;
+        }
+        .step {
+            background: #fafcff;
+            border: 1px solid #e5ebf3;
+            border-radius: 20px;
+            padding: 22px 28px;
+            margin-bottom: 18px;
+            transition: 0.2s;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 16px 24px;
+        }
+        .step:hover {
+            border-color: #b9c8dd;
+            background: #ffffff;
+        }
+        .step-num {
+            font-weight: 700;
+            font-size: 14px;
+            color: #2563eb;
+            background: #dbeafe;
+            padding: 4px 14px;
+            border-radius: 100px;
+            min-width: 36px;
+            text-align: center;
+        }
+        .step-body { flex: 1; min-width: 200px; }
+        .step-body h3 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+        .step-body .desc {
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .step-body .cmd {
+            background: #0b1120;
+            color: #e2e8f0;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            max-width: 100%;
+            word-break: break-all;
+            margin: 4px 0 8px 0;
+        }
+        .step-body .cmd .copy-btn {
+            background: #2d3a4f;
+            border: none;
+            color: white;
+            padding: 4px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .step-body .cmd .copy-btn:hover { background: #3e4f6b; }
+        .step-body .cmd .copy-btn:active { transform: scale(0.94); }
+        .led {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 14px 4px 10px;
+            border-radius: 100px;
+            background: #f1f4f9;
+            color: #1f2a3f;
+        }
+        .led .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #94a3b8;
+            flex-shrink: 0;
+            transition: 0.25s;
+        }
+        .led .dot.green {
+            background: #22c55e;
+            box-shadow: 0 0 0 2px #bbf7d0;
+        }
+        .led .dot.red {
+            background: #ef4444;
+            box-shadow: 0 0 0 2px #fecaca;
+        }
+        .led .dot.orange {
+            background: #f59e0b;
+            box-shadow: 0 0 0 2px #fde68a;
+        }
+        .led .dot.gray { background: #94a3b8; }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 16px;
+            background: #f8fafc;
+            padding: 12px 18px;
+            border-radius: 14px;
+            border: 1px solid #e5ebf3;
+            margin-top: 6px;
+        }
+        .input-group label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1e293b;
+            min-width: 90px;
+        }
+        .input-group input {
+            flex: 1;
+            min-width: 160px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #d1dbe8;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            transition: 0.15s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px #bfdbfe;
+        }
+        .input-group .info {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .input-group select {
+            flex: 1;
+            min-width: 160px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #d1dbe8;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            transition: 0.15s;
+        }
+        .input-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px #bfdbfe;
+        }
+        .cmd-note {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 6px;
+        }
+        .cmd-note code {
+            background: #eef2f7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        .btn-verify {
+            background: #2563eb;
+            border: none;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+        .btn-verify:hover { background: #1d4ed8; }
+        .btn-verify:active { transform: scale(0.95); }
+        .btn-verify.secondary { background: #475569; }
+        .btn-verify.secondary:hover { background: #334155; }
+        .btn-download {
+            background: #059669;
+            border: none;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-download:hover { background: #047857; }
+        .btn-download:active { transform: scale(0.95); }
+        .btn-sync {
+            background: #e11d48;
+            border: none;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-sync:hover { background: #be123c; }
+        .btn-sync:active { transform: scale(0.95); }
+        .btn-firebase {
+            background: #f59e0b;
+            border: none;
+            color: #0b1120;
+            padding: 6px 20px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+        .btn-firebase:hover { background: #d97706; }
+        .btn-firebase:active { transform: scale(0.95); }
+        .footer {
+            margin-top: 32px;
+            padding-top: 18px;
+            border-top: 2px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 14px;
+            color: #475569;
+        }
+        .footer a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer a:hover { text-decoration: underline; }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0b1120;
+            color: white;
+            padding: 10px 28px;
+            border-radius: 100px;
+            font-weight: 500;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .toast.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .generated-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 28px;
+            background: #f1f5f9;
+            border-radius: 14px;
+            padding: 12px 20px;
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .generated-info span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .generated-info .label {
+            color: #64748b;
+            font-weight: 400;
+        }
+        .generated-info .value {
+            font-family: 'JetBrains Mono', monospace;
+            background: #e2e8f0;
+            padding: 2px 10px;
+            border-radius: 6px;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .sync-options {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin: 12px 0;
+            padding: 12px 18px;
+            background: #f8fafc;
+            border-radius: 14px;
+            border: 1px solid #e5ebf3;
+        }
+        .sync-options label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1e293b;
+        }
+        .sync-options select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #d1dbe8;
+            font-size: 13px;
+            font-family: inherit;
+            background: white;
+        }
+        .sync-options .hint {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .firebase-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin: 10px 0;
+        }
+        .firebase-box h4 {
+            color: #92400e;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .firebase-box p {
+            font-size: 13px;
+            color: #78350f;
+            line-height: 1.5;
+        }
+        .firebase-box code {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        .badge-info {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 100px;
+            margin-left: 6px;
+        }
+    </style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4b6cb7">
+<link rel="apple-touch-icon" href="icon.png"></head>
+<body>
+
+<div class="container" id="app">
+    <div class="header">
+        <div class="header-left">
+            <span class="logo">⚡</span>
+            <div class="title">
+                <h1>PWA → APK Protocol</h1>
+                <div class="sub">Capacitor 6 · Brahim's Engine · PowerShell</div>
+            </div>
+        </div>
+        <span class="badge" id="projectBadge">🚧 Nom du projet</span>
+    </div>
+
+    <div class="progress-wrap">
+        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+    </div>
+
+    <!-- ÉTAPE 0 : Configuration -->
+    <div class="step" data-step="0">
+        <span class="step-num">0</span>
+        <div class="step-body">
+            <h3>
+                📦 Configuration du projet
+                <span class="led"><span class="dot green" id="led0"></span> Prêt</span>
+            </h3>
+            <div class="desc">Saisis le <strong>nom du projet</strong> (ex: <code>Ostad</code>). Tout le reste se génère automatiquement.</div>
+            <div class="input-group">
+                <label>Nom du projet</label>
+                <input type="text" id="projectName" placeholder="ex: Ostad" value="Ostad" />
+                <span class="info">⚠️ Doit correspondre au nom du dépôt GitHub</span>
+            </div>
+            <div class="generated-info" id="generatedInfo">
+                <span><span class="label">Bundle ID :</span> <span class="value" id="displayBundle">com.mekeirish.ostad</span></span>
+                <span><span class="label">URL du repo :</span> <span class="value" id="displayRepo">https://github.com/mekeirish/Ostad</span></span>
+                <span><span class="label">APK :</span> <span class="value" id="displayApk">ostad-debug.apk</span></span>
+            </div>
+            <div style="margin-top:12px;">
+                <button class="btn-verify" onclick="updateProject()">✅ Mettre à jour</button>
+                <button class="btn-verify secondary" onclick="resetAll()">🔄 Réinitialiser</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 1 : Cloner -->
+    <div class="step" data-step="1">
+        <span class="step-num">1</span>
+        <div class="step-body">
+            <h3>
+                📥 Cloner le dépôt
+                <span class="led"><span class="dot gray" id="led1"></span> Statut</span>
+            </h3>
+            <div class="desc">Ouvre un terminal PowerShell et clone le projet.</div>
+            <div class="cmd">
+                <span id="cloneCmd">git clone https://github.com/mekeirish/Ostad</span>
+                <button class="copy-btn" onclick="copyText('cloneCmd')">📋 Copier</button>
+            </div>
+            <div class="cmd-note">
+                ⚠️ Cette commande se lance depuis <code>E:\Projets\</code>. Le repo sera cloné dans un sous-dossier.
+            </div>
+            <button class="btn-verify" onclick="verifyStep(1, 'cloneCmd')">🔍 Vérifier</button>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 2 : Synchro -->
+    <div class="step" data-step="2">
+        <span class="step-num">2</span>
+        <div class="step-body">
+            <h3>
+                🔄 Synchronisation PWA → Native
+                <span class="led"><span class="dot gray" id="led2"></span> Statut</span>
+            </h3>
+            <div class="desc">
+                <strong>⚠️ Nouveau workflow :</strong> Tes outils (Mastercode, Snipercode, etc.) modifient le fichier <code>index.html</code> à la racine.<br />
+                Clique sur <strong>⚡ Synchro</strong> pour copier les fichiers vers <code>docs/</code> pour la version native.
+            </div>
+
+            <!-- Options de synchronisation -->
+            <div class="sync-options">
+                <label for="syncMode">📂 Mode de copie :</label>
+                <select id="syncMode" onchange="updateSyncCommand()">
+                    <option value="minimal">Minimal (index.html uniquement)</option>
+                    <option value="full" selected>Complet (tout sauf .git, node_modules, etc.)</option>
+                    <option value="custom">Personnalisé (choisir les fichiers)</option>
+                </select>
+                <span class="hint" id="syncHint">💡 Copie tous les fichiers (HTML, CSS, JS, assets)</span>
+            </div>
+
+            <!-- Bouton Synchro -->
+            <div style="margin: 12px 0;">
+                <button class="btn-sync" onclick="syncPWA()">
+                    ⚡ Synchro (copier vers docs/)
+                </button>
+            </div>
+
+            <div class="cmd">
+                <span id="docsCmd">cd Ostad; mkdir docs -Force; Copy-Item -Path .\* -Destination docs\ -Exclude *.git*, android, docs, node_modules -Recurse -Force</span>
+                <button class="copy-btn" onclick="copyText('docsCmd')">📋 Copier</button>
+            </div>
+            <div class="cmd-note">
+                💡 <code>mkdir -Force</code> évite les erreurs si le dossier existe déjà.<br />
+                💡 Les fichiers inutiles (<code>.git</code>, <code>node_modules</code>, etc.) sont automatiquement exclus.<br />
+                🔶 Après avoir collé la commande dans PowerShell, clique sur <strong>🔍 Vérifier</strong> pour valider.
+            </div>
+            <button class="btn-verify" onclick="verifyStep(2, 'docsCmd')">🔍 Vérifier</button>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 2.5 : Firebase -->
+    <div class="step" data-step="2.5">
+        <span class="step-num">2.5</span>
+        <div class="step-body">
+            <h3>
+                🔥 Intégration Firebase
+                <span class="led"><span class="dot gray" id="led25"></span> Statut</span>
+            </h3>
+
+            <div class="firebase-box">
+                <h4>📌 Stratégie "Multi-plateforme"</h4>
+                <p>
+                    <strong>Ne crée pas un nouveau projet Firebase.</strong> Ajoute une <strong>application Android</strong> 
+                    à ton projet Firebase existant avec le <strong>Bundle ID</strong> affiché ci-dessus.<br /><br />
+                    📥 Télécharge le fichier <code>google-services.json</code> et place-le <strong>à la racine du projet</strong> 
+                    (au même niveau que <code>index.html</code>).<br /><br />
+                    ⚠️ <strong>Règle d'or :</strong> Remplace <code>signInWithPopup</code> par <code>signInWithRedirect</code> 
+                    dans ton code pour une compatibilité native.
+                </p>
+            </div>
+
+            <div class="cmd">
+                <span id="firebaseCmd">firebase</span>
+                <button class="copy-btn" onclick="copyText('firebaseCmd')">📋 Copier</button>
+            </div>
+
+            <div style="margin: 12px 0; display: flex; flex-wrap: wrap; gap: 10px;">
+                <button class="btn-firebase" onclick="showFirebaseGuide()">📖 Guide Firebase</button>
+                <button class="btn-firebase" onclick="checkFirebase()">🔍 Vérifier google-services.json</button>
+            </div>
+            <div class="cmd-note">
+                💡 Le script <code>setup-capacitor.js</code> intègre automatiquement <code>google-services.json</code> 
+                dans le dossier Android s'il est présent à la racine.
+            </div>
+            <button class="btn-verify" onclick="verifyStep(25, 'firebaseCmd')">🔍 Vérifier</button>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 3 : Script -->
+    <div class="step" data-step="3">
+        <span class="step-num">3</span>
+        <div class="step-body">
+            <h3>
+                ⚙️ Lancer le script d'automatisation
+                <span class="led"><span class="dot gray" id="led3"></span> Statut</span>
+            </h3>
+            <div class="desc">Exécute le script <code>setup-capacitor.js</code> en mode automatique.</div>
+            <div class="cmd">
+                <span id="scriptCmd">node C:\outils\setup-capacitor.js -y</span>
+                <button class="copy-btn" onclick="copyText('scriptCmd')">📋 Copier</button>
+            </div>
+            <div class="flex-row">
+                <button class="btn-download" onclick="downloadScript()">⬇️ Télécharger setup-capacitor.js</button>
+                <span style="font-size:12px; color:#64748b;">Version 2.6 (Firebase Ready)</span>
+            </div>
+            <button class="btn-verify" onclick="verifyStep(3, 'scriptCmd')">🔍 Vérifier</button>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 4 : Vérifications -->
+    <div class="step" data-step="4">
+        <span class="step-num">4</span>
+        <div class="step-body">
+            <h3>
+                🔍 Vérifications post-script
+                <span class="led"><span class="dot gray" id="led4"></span> Statut</span>
+            </h3>
+            <div class="desc">Vérifie que <code>icon.png</code>, <code>icons/</code> et le <code>.gitignore</code> sont corrects.</div>
+            <div class="cmd">
+                <span id="verifyCmd">dir icon.png; dir icons\; cat .gitignore | findstr "android"</span>
+                <button class="copy-btn" onclick="copyText('verifyCmd')">📋 Copier</button>
+            </div>
+            <div class="cmd-note">
+                💡 Commande compatible PowerShell : utilise <code>;</code> pour enchaîner.
+            </div>
+            <button class="btn-verify" onclick="verifyStep(4, 'verifyCmd')">🔍 Vérifier</button>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 5 : Commit & Push -->
+    <div class="step" data-step="5">
+        <span class="step-num">5</span>
+        <div class="step-body">
+            <h3>
+                🚀 Commit et Push (inclure android/)
+                <span class="led"><span class="dot gray" id="led5"></span> Statut</span>
+            </h3>
+            <div class="desc">Ajoute tout, commit et push sur GitHub. Puis force un build avec un commit vide.</div>
+            <div class="cmd">
+                <span id="pushCmd">git add .; git commit -m "🎉 Ajout de Capacitor + GitHub Actions"; git push origin main; git commit --allow-empty -m "Trigger: Build APK"; git push origin main</span>
+                <button class="copy-btn" onclick="copyText('pushCmd')">📋 Copier</button>
+            </div>
+            <div class="cmd-note">
+                💡 Commande compatible PowerShell : utilise <code>;</code> pour enchaîner.
+            </div>
+            <button class="btn-verify" onclick="verifyStep(5, 'pushCmd')">🔍 Vérifier</button>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 6 : Récupérer l'APK -->
+    <div class="step" data-step="6">
+        <span class="step-num">6</span>
+        <div class="step-body">
+            <h3>
+                📱 Télécharger l'APK depuis GitHub Actions
+                <span class="led"><span class="dot gray" id="led6"></span> Statut</span>
+            </h3>
+            <div class="desc">Va sur l'onglet <strong>Actions</strong> de ton dépôt GitHub et télécharge l'APK généré.</div>
+            <div class="cmd">
+                <span id="apkCmd">https://github.com/mekeirish/Ostad/actions</span>
+                <button class="copy-btn" onclick="copyText('apkCmd')">📋 Copier</button>
+            </div>
+            <button class="btn-verify" onclick="verifyStep(6, 'apkCmd')">🔍 Ouvrir</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>⚡ Brahim's PWA-to-APK Engine · v2.7 (Firebase Ready + Synchro)</span>
+        <span><a href="#" onclick="resetAll(); return false;">🔄 Réinitialiser</a></span>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    (function() {
+        const projectNameInput = document.getElementById('projectName');
+        const badge = document.getElementById('projectBadge');
+        const progressFill = document.getElementById('progressFill');
+        const syncModeSelect = document.getElementById('syncMode');
+        const syncHint = document.getElementById('syncHint');
+
+        const ledMap = { 1: 'led1', 2: 'led2', 25: 'led25', 3: 'led3', 4: 'led4', 5: 'led5', 6: 'led6' };
+        const stepStatus = { 1: false, 2: false, 25: false, 3: false, 4: false, 5: false, 6: false };
+
+        const GITHUB_USER = 'mekeirish';
+        const BUNDLE_PREFIX = 'com.mekeirish.';
+
+        // ================================================================
+        // METTRE À JOUR LA COMMANDE DE SYNCHRO
+        // ================================================================
+        window.updateSyncCommand = function() {
+            const name = projectNameInput.value.trim() || 'Projet';
+            const mode = syncModeSelect.value;
+            let command = '';
+            let hint = '';
+
+            switch (mode) {
+                case 'minimal':
+                    command = `cd ${name}; mkdir docs -Force; Copy-Item -Path index.html -Destination docs\\index.html -Force`;
+                    hint = '💡 Copie uniquement index.html (plus rapide)';
+                    break;
+                case 'full':
+                    command = `cd ${name}; mkdir docs -Force; Copy-Item -Path .\\* -Destination docs\\ -Exclude *.git*, android, docs, node_modules -Recurse -Force`;
+                    hint = '💡 Copie tous les fichiers (HTML, CSS, JS, assets)';
+                    break;
+                case 'custom':
+                    command = `cd ${name}; mkdir docs -Force; Copy-Item -Path index.html -Destination docs\\ -Force; Copy-Item -Path style.css -Destination docs\\ -Force; Copy-Item -Path script.js -Destination docs\\ -Force; Copy-Item -Path assets\\* -Destination docs\\assets\\ -Recurse -Force`;
+                    hint = '💡 Mode personnalisé : adapte les noms de fichiers selon ton projet';
+                    break;
+                default:
+                    command = `cd ${name}; mkdir docs -Force; Copy-Item -Path .\\* -Destination docs\\ -Exclude *.git*, android, docs, node_modules -Recurse -Force`;
+                    hint = '💡 Copie tous les fichiers (HTML, CSS, JS, assets)';
+            }
+
+            document.getElementById('docsCmd').textContent = command;
+            syncHint.textContent = hint;
+        };
+
+        // ================================================================
+        // METTRE À JOUR LE PROJET
+        // ================================================================
+        window.updateProject = function() {
+            const name = projectNameInput.value.trim() || 'Projet';
+            const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            const bundle = BUNDLE_PREFIX + cleanName;
+            const repoUrl = `https://github.com/${GITHUB_USER}/${name}`;
+            const apkName = cleanName + '-debug.apk';
+            const actionsUrl = `https://github.com/${GITHUB_USER}/${name}/actions`;
+
+            document.getElementById('displayBundle').textContent = bundle;
+            document.getElementById('displayRepo').textContent = repoUrl;
+            document.getElementById('displayApk').textContent = apkName;
+            badge.textContent = `📱 ${name}`;
+
+            window.updateSyncCommand();
+
+            document.getElementById('cloneCmd').textContent = `git clone ${repoUrl}`;
+            document.getElementById('apkCmd').textContent = actionsUrl;
+
+            // Mettre à jour la commande Firebase avec le Bundle ID
+            document.getElementById('firebaseCmd').textContent = `Bundle ID : ${bundle}`;
+
+            const pushCmd = document.getElementById('pushCmd');
+            pushCmd.textContent = `git add .; git commit -m "🎉 Ajout de Capacitor + GitHub Actions pour ${name}"; git push origin main; git commit --allow-empty -m "Trigger: Build APK pour ${name}"; git push origin main`;
+
+            document.getElementById('led0').className = 'dot green';
+            showToast(`✅ Projet mis à jour : ${name}`);
+            updateProgress();
+        };
+
+        // ================================================================
+        // COPIER
+        // ================================================================
+        window.copyText = function(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const text = el.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`📋 Copié : ${text.slice(0, 50)}${text.length > 50 ? '…' : ''}`);
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+                showToast(`📋 Copié (fallback) : ${text.slice(0, 50)}${text.length > 50 ? '…' : ''}`);
+            });
+        };
+
+        // ================================================================
+        // BOUTON SYNCHRO
+        // ================================================================
+        window.syncPWA = function() {
+            const name = projectNameInput.value.trim() || 'Projet';
+            const mode = syncModeSelect.value;
+            let command = '';
+
+            switch (mode) {
+                case 'minimal':
+                    command = `cd ${name}; mkdir docs -Force; Copy-Item -Path index.html -Destination docs\\index.html -Force`;
+                    break;
+                case 'full':
+                    command = `cd ${name}; mkdir docs -Force; Copy-Item -Path .\\* -Destination docs\\ -Exclude *.git*, android, docs, node_modules -Recurse -Force`;
+                    break;
+                case 'custom':
+                    command = `cd ${name}; mkdir docs -Force; Copy-Item -Path index.html -Destination docs\\ -Force; Copy-Item -Path style.css -Destination docs\\ -Force; Copy-Item -Path script.js -Destination docs\\ -Force; Copy-Item -Path assets\\* -Destination docs\\assets\\ -Recurse -Force`;
+                    break;
+                default:
+                    command = `cd ${name}; mkdir docs -Force; Copy-Item -Path .\\* -Destination docs\\ -Exclude *.git*, android, docs, node_modules -Recurse -Force`;
+            }
+
+            navigator.clipboard.writeText(command).then(() => {
+                showToast(`⚡ Commande Synchro copiée ! Colle-la dans PowerShell.`);
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = command;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+                showToast(`⚡ Commande Synchro copiée ! Colle-la dans PowerShell.`);
+            });
+
+            const led = document.getElementById('led2');
+            if (led && !stepStatus[2]) {
+                led.className = 'dot orange';
+                showToast(`🔶 Synchro copiée ! Exécute dans PowerShell puis clique sur "🔍 Vérifier".`);
+            }
+        };
+
+        // ================================================================
+        // FIREBASE
+        // ================================================================
+        window.showFirebaseGuide = function() {
+            const bundle = document.getElementById('displayBundle').textContent;
+            showToast(`📖 Bundle ID : ${bundle}. Ajoute une app Android dans Firebase Console.`);
+        };
+
+        window.checkFirebase = function() {
+            const msg = '🔍 Vérifie que google-services.json est présent à la racine du projet.';
+            showToast(msg);
+            const led = document.getElementById('led25');
+            if (led && !stepStatus[25]) {
+                led.className = 'dot orange';
+            }
+        };
+
+        // ================================================================
+        // TÉLÉCHARGER LE SCRIPT (v2.6 Firebase Ready)
+        // ================================================================
+        window.downloadScript = function() {
+            const scriptContent = `// ============================================================
+// setup-capacitor.js - Starter ultime pour PWA + Capacitor
+// Compatible Node 22+ & Java 21+ - Juillet 2026
+// VERSION 2.6 - INTÉGRATION FIREBASE + AAPT2 IMMUNISÉ
+// ============================================================
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
+
+const autoMode = process.argv.includes('--yes') || process.argv.includes('-y');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+const ask = (query) => new Promise(resolve => rl.question(query, resolve));
+
+function checkAndFixDrive() {
+  if (process.platform !== 'win32') return;
+  const projectRoot = process.cwd();
+  const rootDrive = projectRoot.split(path.sep)[0];
+  const currentDrive = process.cwd().split(path.sep)[0];
+
+  if (rootDrive !== currentDrive) {
+    console.log(\`⚠️  Projet sur \${rootDrive}, terminal sur \${currentDrive}. Changement auto...\\n\`);
+    try {
+      process.chdir(rootDrive + path.sep);
+      process.chdir(projectRoot);
+      console.log(\`✅ Maintenant dans : \${process.cwd()}\`);
+    } catch (e) {
+      console.error(\`❌ Impossible de changer. Lancez le terminal depuis \${rootDrive}.\`);
+      process.exit(1);
+    }
+  }
+  try {
+    execSync(\`git config --global --add safe.directory \${process.cwd().replace(/\\\\/g, '/')}\`, { stdio: 'ignore' });
+  } catch (e) {}
+}
+
+function checkNodeVersion() {
+  const version = process.version;
+  const major = parseInt(version.slice(1).split('.')[0], 10);
+  if (major < 22) {
+    console.error(\`❌ Node.js v22+ requis (\${version} détecté).\`);
+    process.exit(1);
+  }
+  console.log(\`✅ Node.js \${version} OK\`);
+}
+
+function checkJavaVersion() {
+  try {
+    const output = execSync('java -version 2>&1', { encoding: 'utf8' });
+    const match = output.match(/(?:openjdk|java) version "(\\d+\\.?\\d*)/);
+    let major = match ? parseInt(match[1], 10) : 0;
+    if (match && match[1].startsWith('1.')) major = parseInt(match[1].split('.')[1], 10);
+
+    if (major < 21) {
+      console.error(\`❌ JDK 21+ requis (\${major} détecté).\`);
+      process.exit(1);
+    }
+    console.log(\`✅ Java version \${major} OK\`);
+  } catch (e) {
+    console.error('❌ Java introuvable.');
+    process.exit(1);
+  }
+}
+
+function getGitUsername() {
+  try {
+    const username = execSync('git config user.name', { encoding: 'utf8' }).trim();
+    if (username) return username.toLowerCase().replace(/[^a-z0-9]/g, '');
+  } catch (e) {}
+  return 'base';
+}
+
+function detectPermissions(sourceDir) {
+  const permissions = new Set();
+  const features = new Set();
+  const iosKeys = new Set();
+
+  try {
+    const files = fs.readdirSync(sourceDir, { recursive: true });
+    files.forEach(file => {
+      if (!file.match(/\\.(js|html|ts|jsx|tsx)$/)) return;
+      try {
+        const content = fs.readFileSync(path.join(sourceDir, file), 'utf8');
+        if (content.includes('navigator.geolocation') || content.includes('getCurrentPosition')) {
+          permissions.add('ACCESS_FINE_LOCATION');
+          permissions.add('ACCESS_COARSE_LOCATION');
+          features.add('android.hardware.location.gps');
+        }
+        if (content.includes('RECORD_AUDIO') || content.includes('audio: true')) {
+          permissions.add('RECORD_AUDIO');
+          permissions.add('MODIFY_AUDIO_SETTINGS');
+          features.add('android.hardware.microphone');
+        }
+        if (content.includes('CAMERA') || content.includes('video: true')) {
+          permissions.add('CAMERA');
+          features.add('android.hardware.camera');
+        }
+        if (content.includes('Notification.requestPermission')) {
+          permissions.add('POST_NOTIFICATIONS');
+        }
+      } catch (e) {}
+    });
+  } catch (e) {}
+
+  permissions.add('INTERNET');
+  return { permissions, features, iosKeys };
+}
+
+function addAndroidPermissions(permissions, features) {
+  const manifestPath = path.join(process.cwd(), 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
+  if (!fs.existsSync(manifestPath)) return;
+
+  let manifest = fs.readFileSync(manifestPath, 'utf8');
+  permissions.forEach(perm => {
+    const tag = \`<uses-permission android:name="android.permission.\${perm}" />\`;
+    if (!manifest.includes(tag)) {
+      manifest = manifest.replace('<application', \`    \${tag}\\n    <application\`);
+    }
+  });
+  features.forEach(feat => {
+    const tag = \`<uses-feature android:name="\${feat}" android:required="false" />\`;
+    if (!manifest.includes(tag)) {
+      manifest = manifest.replace('</manifest>', \`    \${tag}\\n</manifest>\`);
+    }
+  });
+  fs.writeFileSync(manifestPath, manifest, 'utf8');
+}
+
+function handleIcon() {
+  const projectRoot = process.cwd();
+  const androidResPath = path.join(projectRoot, 'android', 'app', 'src', 'main', 'res');
+  const projectIconsDir = path.join(projectRoot, 'icons');
+  
+  if (!fs.existsSync(projectIconsDir)) {
+    fs.mkdirSync(projectIconsDir, { recursive: true });
+  }
+
+  const rootIconPath = path.join(projectRoot, 'icon.png');
+  if (fs.existsSync(rootIconPath)) {
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+    sizes.forEach(size => {
+      fs.copyFileSync(rootIconPath, path.join(projectIconsDir, \`icon-\${size}.png\`));
+    });
+  }
+
+  const mainIcon = path.join(projectIconsDir, 'icon-192.png');
+  if (!fs.existsSync(mainIcon)) {
+    console.log('ℹ️ Aucune icône source trouvée, utilisation des icônes Capacitor de base.');
+    return;
+  }
+
+  const legacyMipmapDirs = ['mipmap-mdpi', 'mipmap-hdpi', 'mipmap-xhdpi', 'mipmap-xxhdpi', 'mipmap-xxxhdpi'];
+  const legacyDrawableDirs = [
+    'drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi',
+    'drawable-land-mdpi', 'drawable-land-hdpi', 'drawable-land-xhdpi', 'drawable-land-xxhdpi', 'drawable-land-xxxhdpi',
+    'drawable-port-mdpi', 'drawable-port-hdpi', 'drawable-port-xhdpi', 'drawable-port-xxhdpi', 'drawable-port-xxxhdpi'
+  ];
+
+  [...legacyMipmapDirs, ...legacyDrawableDirs].forEach(dir => {
+    const fullPath = path.join(androidResPath, dir);
+    if (!fs.existsSync(fullPath)) fs.mkdirSync(fullPath, { recursive: true });
+  });
+
+  [...legacyMipmapDirs, ...legacyDrawableDirs].forEach(dir => {
+    fs.copyFileSync(mainIcon, path.join(androidResPath, dir, 'ic_launcher.png'));
+    fs.copyFileSync(mainIcon, path.join(androidResPath, dir, 'ic_launcher_round.png'));
+    fs.copyFileSync(mainIcon, path.join(androidResPath, dir, 'ic_launcher_foreground.png'));
+  });
+
+  // ============================================================
+  // SECURE SHIELD : NETTOYAGE ET REMPLACEMENT SANS DOUBLONS
+  // ============================================================
+  
+  const anyDpiDir = path.join(androidResPath, 'mipmap-anydpi-v26');
+  if (!fs.existsSync(anyDpiDir)) fs.mkdirSync(anyDpiDir, { recursive: true });
+
+  const anyDpiFiles = ['ic_launcher.png', 'ic_launcher_round.png', 'ic_launcher_foreground.png', 'ic_launcher.xml', 'ic_launcher_round.xml'];
+  anyDpiFiles.forEach(file => {
+    const p = path.join(anyDpiDir, file);
+    if (fs.existsSync(p)) fs.unlinkSync(p);
+  });
+
+  const adaptiveXml = \`<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@android:color/white"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>\`;
+
+  fs.writeFileSync(path.join(anyDpiDir, 'ic_launcher.xml'), adaptiveXml, 'utf8');
+  fs.writeFileSync(path.join(anyDpiDir, 'ic_launcher_round.xml'), adaptiveXml, 'utf8');
+
+  const v24Dir = path.join(androidResPath, 'drawable-v24');
+  if (!fs.existsSync(v24Dir)) fs.mkdirSync(v24Dir, { recursive: true });
+
+  const v24Files = ['ic_launcher_foreground.png', 'ic_launcher_foreground.xml'];
+  v24Files.forEach(file => {
+    const p = path.join(v24Dir, file);
+    if (fs.existsSync(p)) fs.unlinkSync(p);
+  });
+
+  const manifestPath = path.join(projectRoot, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
+  if (fs.existsSync(manifestPath)) {
+    let manifest = fs.readFileSync(manifestPath, 'utf8');
+    manifest = manifest.replace(/android:icon="[^"]*"/g, 'android:icon="@mipmap/ic_launcher"');
+    manifest = manifest.replace(/android:roundIcon="[^"]*"/g, 'android:roundIcon="@mipmap/ic_launcher"');
+    fs.writeFileSync(manifestPath, manifest, 'utf8');
+  }
+
+  console.log('🎨 Gestion des icônes sécurisée (AAPT2 immunisé).');
+}
+
+// ============================================================
+// FONCTION FIREBASE : INTÉGRATION GOOGLE-SERVICES.JSON
+// ============================================================
+function handleFirebase() {
+  const projectRoot = process.cwd();
+  const srcJson = path.join(projectRoot, 'google-services.json');
+  const destJson = path.join(projectRoot, 'android', 'app', 'google-services.json');
+  
+  if (fs.existsSync(srcJson)) {
+    const destDir = path.dirname(destJson);
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+    fs.copyFileSync(srcJson, destJson);
+    console.log('✅ google-services.json intégré pour Android (Firebase).');
+    return true;
+  } else {
+    console.warn('⚠️ google-services.json absent. Firebase ne fonctionnera pas en natif.');
+    console.warn('📌 Ajoute le fichier à la racine du projet pour activer Firebase.');
+    return false;
+  }
+}
+
+function generateGithubWorkflow(appName) {
+  const workflowPath = path.join(process.cwd(), '.github', 'workflows', 'build-apk.yml');
+  const workflowDir = path.dirname(workflowPath);
+  if (!fs.existsSync(workflowDir)) fs.mkdirSync(workflowDir, { recursive: true });
+
+  const apkName = appName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const workflowContent = \`name: Build Android APK (Capacitor)
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Install Dependencies
+        run: npm ci || npm install
+
+      - name: Capacitor Sync
+        run: npx cap sync android
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: \${apkName}-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7\`;
+
+  fs.writeFileSync(workflowPath, workflowContent, 'utf8');
+}
+
+function generateGitignore() {
+  const gitignorePath = path.join(process.cwd(), '.gitignore');
+  if (!fs.existsSync(gitignorePath)) {
+    const content = \`node_modules/\\nnpm-debug.log\\npackage-lock.json\\nandroid/app/build/\\nios/App/App/build/\\ngoogle-services.json\\n\`;
+    fs.writeFileSync(gitignorePath, content, 'utf8');
+  } else {
+    let content = fs.readFileSync(gitignorePath, 'utf8');
+    if (!content.includes('google-services.json')) {
+      content += '\\ngoogle-services.json\\n';
+      fs.writeFileSync(gitignorePath, content, 'utf8');
+      console.log('✅ google-services.json ajouté au .gitignore');
+    }
+  }
+}
+
+(async () => {
+  console.log('\\n🚀 === SETUP CAPACITOR (v2.6 - Firebase Ready) ===\\n');
+  checkAndFixDrive();
+  checkNodeVersion();
+  checkJavaVersion();
+
+  const folderName = path.basename(process.cwd());
+  const defaultAppName = folderName;
+  const gitNamespace = getGitUsername();
+  const defaultAppId = \`com.\${gitNamespace}.\${folderName.toLowerCase().replace(/[^a-z0-9]/g, '')}\`;
+  const defaultSourceDir = 'docs';
+
+  let appName = autoMode ? defaultAppName : (await ask(\`📱 Nom de l'app (\${defaultAppName}) : \`) || defaultAppName);
+  let appId = autoMode ? defaultAppId : (await ask(\`🏷️ Bundle ID (\${defaultAppId}) : \`) || defaultAppId);
+  let sourceDir = autoMode ? defaultSourceDir : (await ask(\`📁 Dossier HTML (.../\${defaultSourceDir}) : \`) || defaultSourceDir);
+
+  try {
+    if (!fs.existsSync(path.join(process.cwd(), 'package.json'))) {
+      execSync('npm init -y', { stdio: 'ignore' });
+    }
+    execSync('npm install @capacitor/core @capacitor/cli @capacitor/android', { stdio: 'inherit' });
+    execSync(\`npx cap init "\${appName}" "\${appId}" --web-dir=\${sourceDir}\`, { stdio: 'inherit' });
+    execSync('npx cap add android', { stdio: 'inherit' });
+
+    const detected = detectPermissions(sourceDir);
+    addAndroidPermissions(detected.permissions, detected.features);
+    handleIcon();
+
+    // 🔥 INTÉGRATION FIREBASE
+    const firebaseOk = handleFirebase();
+
+    generateGithubWorkflow(appName);
+    generateGitignore();
+
+    execSync('npx cap sync', { stdio: 'inherit' });
+
+    console.log('\\n🎉 Configuration terminée avec succès !');
+    if (firebaseOk) {
+      console.log('✅ Firebase est actif (google-services.json trouvé)');
+    } else {
+      console.log('ℹ️ Firebase non configuré. Ajoute google-services.json à la racine pour activer Firebase.');
+    }
+    console.log('🚀 Build prêt !');
+  } catch (error) {
+    console.error('\\n❌ Erreur :', error.message);
+    process.exit(1);
+  }
+  rl.close();
+})();`;
+
+            try {
+                const blob = new Blob([scriptContent], { type: 'application/javascript' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'setup-capacitor.js';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('⬇️ setup-capacitor.js v2.6 (Firebase Ready) téléchargé !');
+            } catch (e) {
+                showToast('❌ Erreur de téléchargement : ' + e.message);
+            }
+        };
+
+        // ================================================================
+        // VÉRIFIER UNE ÉTAPE
+        // ================================================================
+        window.verifyStep = function(step, cmdId) {
+            const ledMapLocal = { 1: 'led1', 2: 'led2', 25: 'led25', 3: 'led3', 4: 'led4', 5: 'led5', 6: 'led6' };
+            const ledId = ledMapLocal[step];
+            if (!ledId) return;
+            const led = document.getElementById(ledId);
+
+            if (step === 6) {
+                const url = document.getElementById('apkCmd').textContent;
+                window.open(url, '_blank');
+                led.className = 'dot green';
+                stepStatus[step] = true;
+                showToast('✅ Étape 6 : lien ouvert');
+                updateProgress();
+                return;
+            }
+
+            const currentStatus = stepStatus[step];
+            if (!currentStatus) {
+                led.className = 'dot green';
+                stepStatus[step] = true;
+                showToast(`✅ Étape ${step} vérifiée !`);
+            } else {
+                led.className = 'dot red';
+                stepStatus[step] = false;
+                showToast(`❌ Étape ${step} : à revoir.`);
+            }
+            updateProgress();
+        };
+
+        // ================================================================
+        // PROGRESSION
+        // ================================================================
+        function updateProgress() {
+            const total = 7;
+            let done = 0;
+            for (let i = 1; i <= 6; i++) { if (stepStatus[i]) done++; }
+            if (stepStatus[25]) done++;
+            progressFill.style.width = Math.round((done / total) * 100) + '%';
+        }
+
+        // ================================================================
+        // TOAST
+        // ================================================================
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ================================================================
+        // RÉINITIALISER
+        // ================================================================
+        window.resetAll = function() {
+            for (let i = 1; i <= 6; i++) {
+                stepStatus[i] = false;
+                const led = document.getElementById(ledMap[i]);
+                if (led) led.className = 'dot gray';
+            }
+            stepStatus[25] = false;
+            const led25 = document.getElementById('led25');
+            if (led25) led25.className = 'dot gray';
+            updateProgress();
+            document.getElementById('led0').className = 'dot green';
+            projectNameInput.value = '';
+            updateProject();
+        };
+
+        // ================================================================
+        // INIT
+        // ================================================================
+        window.addEventListener('DOMContentLoaded', function() {
+            updateProject();
+        });
+
+        projectNameInput.addEventListener('input', updateProject);
+        syncModeSelect.addEventListener('change', updateSyncCommand);
+    })();
+</script>
+
+
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
+</body>
+</html>
