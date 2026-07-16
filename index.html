@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<html lang="fr"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ PWA → APK Protocol · Brahim's Engine</title>
     <style>
         * {
@@ -447,9 +445,13 @@
         }
     </style>
 
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#4b6cb7">
-<link rel="apple-touch-icon" href="icon.png"></head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon.png">
+</head>
 <body>
 
 <div class="container" id="app">
@@ -479,7 +481,7 @@
             <div class="desc">Saisis le <strong>nom du projet</strong> (ex: <code>Ostad</code>). Tout le reste se génère automatiquement.</div>
             <div class="input-group">
                 <label>Nom du projet</label>
-                <input type="text" id="projectName" placeholder="ex: Ostad" value="Ostad" />
+                <input type="text" id="projectName" placeholder="ex: Ostad" value="Ostad">
                 <span class="info">⚠️ Doit correspondre au nom du dépôt GitHub</span>
             </div>
             <div class="generated-info" id="generatedInfo">
@@ -523,7 +525,7 @@
                 <span class="led"><span class="dot gray" id="led2"></span> Statut</span>
             </h3>
             <div class="desc">
-                <strong>⚠️ Nouveau workflow :</strong> Tes outils (Mastercode, Snipercode, etc.) modifient le fichier <code>index.html</code> à la racine.<br />
+                <strong>⚠️ Nouveau workflow :</strong> Tes outils (Mastercode, Snipercode, etc.) modifient le fichier <code>index.html</code> à la racine.<br>
                 Clique sur <strong>⚡ Synchro</strong> pour copier les fichiers vers <code>docs/</code> pour la version native.
             </div>
 
@@ -532,7 +534,7 @@
                 <label for="syncMode">📂 Mode de copie :</label>
                 <select id="syncMode" onchange="updateSyncCommand()">
                     <option value="minimal">Minimal (index.html uniquement)</option>
-                    <option value="full" selected>Complet (tout sauf .git, node_modules, etc.)</option>
+                    <option value="full" selected="">Complet (tout sauf .git, node_modules, etc.)</option>
                     <option value="custom">Personnalisé (choisir les fichiers)</option>
                 </select>
                 <span class="hint" id="syncHint">💡 Copie tous les fichiers (HTML, CSS, JS, assets)</span>
@@ -550,8 +552,8 @@
                 <button class="copy-btn" onclick="copyText('docsCmd')">📋 Copier</button>
             </div>
             <div class="cmd-note">
-                💡 <code>mkdir -Force</code> évite les erreurs si le dossier existe déjà.<br />
-                💡 Les fichiers inutiles (<code>.git</code>, <code>node_modules</code>, etc.) sont automatiquement exclus.<br />
+                💡 <code>mkdir -Force</code> évite les erreurs si le dossier existe déjà.<br>
+                💡 Les fichiers inutiles (<code>.git</code>, <code>node_modules</code>, etc.) sont automatiquement exclus.<br>
                 🔶 Après avoir collé la commande dans PowerShell, clique sur <strong>🔍 Vérifier</strong> pour valider.
             </div>
             <button class="btn-verify" onclick="verifyStep(2, 'docsCmd')">🔍 Vérifier</button>
@@ -571,9 +573,9 @@
                 <h4>📌 Stratégie "Multi-plateforme"</h4>
                 <p>
                     <strong>Ne crée pas un nouveau projet Firebase.</strong> Ajoute une <strong>application Android</strong> 
-                    à ton projet Firebase existant avec le <strong>Bundle ID</strong> affiché ci-dessus.<br /><br />
+                    à ton projet Firebase existant avec le <strong>Bundle ID</strong> affiché ci-dessus.<br><br>
                     📥 Télécharge le fichier <code>google-services.json</code> et place-le <strong>à la racine du projet</strong> 
-                    (au même niveau que <code>index.html</code>).<br /><br />
+                    (au même niveau que <code>index.html</code>).<br><br>
                     ⚠️ <strong>Règle d'or :</strong> Remplace <code>signInWithPopup</code> par <code>signInWithRedirect</code> 
                     dans ton code pour une compatibilité native.
                 </p>
@@ -1298,6 +1300,14 @@ function generateGitignore() {
 </script>
 
 
-<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
-</body>
-</html>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker enregistré !'))
+        .catch(err => console.error('Erreur SW :', err));
+    });
+  }
+</script>
+</body></html>
